@@ -1,11 +1,19 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const Usuario = require('../models/usuario');
+const { verificarToken, verificaUsuarioAdmin } = require('../middlewares/autenticacion');
+
 const app = express();
 
 
 
-app.get('/usuario', function(req, res) {
+app.get('/usuario', verificarToken, (req, res) => {
+
+    return res.json({
+        usuario: req.usuario,
+        nombre: req.usuario.nombre,
+        email: req.usuario.email
+    });
 
     let desde = req.query.desde || 0;
     desde = Number(desde);
@@ -36,7 +44,7 @@ app.get('/usuario', function(req, res) {
         });
 });
 
-app.post('/usuario', function(req, res) {
+app.post('/usuario', [verificarToken, verificaUsuarioAdmin], (req, res) => {
 
     let body = req.body;
 
@@ -66,7 +74,7 @@ app.post('/usuario', function(req, res) {
 
 });
 
-app.put('/usuario/:id', function(req, res) {
+app.put('/usuario/:id', [verificarToken, verificaUsuarioAdmin], (req, res) => {
     let id = req.params.id;
     let body = req.body;
 
@@ -86,7 +94,7 @@ app.put('/usuario/:id', function(req, res) {
 
 });
 
-app.delete('/usuario/:id', function(req, res) {
+app.delete('/usuario/:id', [verificarToken, verificaUsuarioAdmin], (req, res) => {
 
     let id = req.params.id;
     let estadoCambiado = {
